@@ -44,7 +44,7 @@ def get_vault_client() -> hvac.Client:
         secret_id=VAULT_SECRET_ID,
     )
     client.token = auth["auth"]["client_token"]
-    logger.info("✅ Autentificat in Vault cu AppRole")
+    logger.info("Autentificat in Vault cu AppRole")
     return client
 
 
