@@ -12,7 +12,7 @@ import requests
 
 app = Flask(__name__)
 
-# ⚠️  VULNERABILITATE CRITICA: Credentiale hard-codate
+# VULNERABILITATE CRITICA: Credentiale hard-codate
 DB_HOST     = "prod-db.internal.company.com"
 DB_PORT     = 5432
 DB_NAME     = "production_db"
@@ -88,5 +88,5 @@ def send_email():
 
 
 if __name__ == "__main__":
-    # ⚠️  Debug mode ON in productie - alta vulnerabilitate
+    #Debug mode ON in productie - alta vulnerabilitate
     app.run(host="0.0.0.0", port=5000, debug=True)
