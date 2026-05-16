@@ -8,18 +8,15 @@ set -euo pipefail
 export VAULT_ADDR="http://127.0.0.1:8200"
 export VAULT_TOKEN="root"   # token dev-mode; in productie foloseste unseal keys
 
-echo "╔══════════════════════════════════════════════╗"
-echo "║   Vault Initialization — Secrets Management  ║"
-echo "╚══════════════════════════════════════════════╝"
+echo "Vault Initialization — Secrets Management"
+
 
 # ── 1. Activeaza KV Secrets Engine v2 ──────────────────────
-echo ""
-echo "▶ [1/5] Activare KV Secrets Engine v2..."
+echo "Activare KV Secrets Engine v2..."
 vault secrets enable -path=secret kv-v2 2>/dev/null || echo "  (deja activ)"
 
 # ── 2. Scrie secretele aplicatiei ──────────────────────────
-echo ""
-echo "▶ [2/5] Scriere secrete in Vault..."
+echo "Scriere secrete in Vault..."
 
 vault kv put secret/database/postgres \
   host="prod-db.internal.company.com" \
@@ -42,11 +39,11 @@ vault kv put secret/integrations/stripe \
 vault kv put secret/app/jwt \
   secret="$(openssl rand -base64 64)"
 
-echo "  ✅ Secrete scrise cu succes"
+echo "Secrete scrise cu succes"
 
 # ── 3. Creeaza Policy pentru aplicatie ─────────────────────
 echo ""
-echo "▶ [3/5] Creare policy 'app-policy'..."
+echo "Creare policy 'app-policy'..."
 
 vault policy write app-policy - <<'EOF'
 # Policy pentru aplicatia Flask
@@ -78,11 +75,11 @@ path "*" {
 }
 EOF
 
-echo "  ✅ Policy creata"
+echo "Policy creata"
 
 # ── 4. Configureaza AppRole Authentication ─────────────────
 echo ""
-echo "▶ [4/5] Configurare AppRole Auth..."
+echo "Configurare AppRole Auth..."
 
 vault auth enable approle 2>/dev/null || echo "  (deja activ)"
 
@@ -97,14 +94,12 @@ vault write auth/approle/role/flask-app \
 ROLE_ID=$(vault read -field=role_id auth/approle/role/flask-app/role-id)
 SECRET_ID=$(vault write -f -field=secret_id auth/approle/role/flask-app/secret-id)
 
-echo "  ✅ AppRole configurat"
-echo ""
-echo "┌─────────────────────────────────────────────┐"
-echo "│  Credentiale AppRole (injecteaza in env):   │"
-echo "│                                             │"
-echo "│  VAULT_ROLE_ID   = ${ROLE_ID:0:8}...        │"
-echo "│  VAULT_SECRET_ID = ${SECRET_ID:0:8}...      │"
-echo "└─────────────────────────────────────────────┘"
+echo "AppRole configurat"
+
+echo "Credentiale AppRole (injecteaza in env):"
+echo "VAULT_ROLE_ID   = ${ROLE_ID:0:8}..."
+echo "VAULT_SECRET_ID = ${SECRET_ID:0:8}..."
+
 
 # Salveaza pentru docker-compose
 cat > .env.app <<EOF2
@@ -114,15 +109,12 @@ VAULT_SECRET_ID=${SECRET_ID}
 EOF2
 
 echo ""
-echo "  📄 Credentiale salvate in .env.app (adauga in .gitignore!)"
+echo "Credentiale salvate in .env.app"
 
 # ── 5. Audit Log ────────────────────────────────────────────
 echo ""
-echo "▶ [5/5] Activare Audit Logging..."
+echo "Activare Audit Logging..."
 vault audit enable file file_path=/vault/logs/audit.log 2>/dev/null || echo "  (deja activ)"
-echo "  ✅ Audit log activ la /vault/logs/audit.log"
+echo "Audit log activ la /vault/logs/audit.log"
 
-echo ""
-echo "══════════════════════════════════════════════"
-echo "  ✅ Vault initializat cu succes!"
-echo "══════════════════════════════════════════════"
+echo "Vault initializat cu succes!"
